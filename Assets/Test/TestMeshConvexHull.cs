@@ -25,4 +25,30 @@ public class TestMeshConvexHull : MonoBehaviour {
             renderers[i].enabled = false;
         }
     }
+
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.E))
+        {
+            var t0 = System.DateTime.Now.Ticks;
+            Convex.Expand(0.01);
+            var delta = (System.DateTime.Now.Ticks - t0);
+            Debug.LogFormat("[TestMeshConvexHull]扩张用时:{0}ms", (delta / 10000f).ToString());
+        }
+
+        if (Input.GetKeyDown(KeyCode.U))
+        {
+            var t0 = System.DateTime.Now.Ticks;
+            Convex.Expand(0.01,v=> {
+                if (v.y <= 0)
+                    v = Vector3.zero;
+                else
+                    v.x = v.z = 0;
+
+                return v;
+            });
+            var delta = (System.DateTime.Now.Ticks - t0);
+            Debug.LogFormat("[TestMeshConvexHull]扩张用时:{0}ms", (delta / 10000f).ToString());
+        }
+    }
 }

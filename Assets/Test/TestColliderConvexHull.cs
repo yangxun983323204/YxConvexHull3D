@@ -19,4 +19,15 @@ public class TestColliderConvexHull : MonoBehaviour {
         gizmo.Convex = Convex;
         gizmo.Tran = Convex.Root;
     }
+
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.E))
+        {
+            var t0 = System.DateTime.Now.Ticks;
+            Convex.Expand(0.01);
+            var delta = (System.DateTime.Now.Ticks - t0);
+            Debug.LogFormat("[TestColliderConvexHull]扩张用时:{0}ms", (delta / 10000f).ToString());
+        }
+    }
 }

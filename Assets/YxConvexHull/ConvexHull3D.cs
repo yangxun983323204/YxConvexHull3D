@@ -128,6 +128,7 @@ namespace Yx
         bool[,] _sawTable;
         Vertex[] _vertices;
         Face[] _convexFaces;
+        Vertex _center = new Vertex() { x = 0, y = 0, z = 0 };
         // 包围盒
         Vertex _boundsMin = new Vertex() { x = double.MaxValue,y = double.MaxValue,z = double.MaxValue };
         Vertex _boundsMax = new Vertex() { x = double.MinValue,y = double.MinValue,z = double.MinValue };
@@ -252,12 +253,46 @@ namespace Yx
 
             return true;
         }
+        /// <summary>
+        /// 使凸包沿中心到表面的方向扩张
+        /// </summary>
+        /// <param name="delta">扩张值</param>
+        public void Expand(double delta)
+        {
+            for (int i = 0; i < VertexCount; i++)
+            {
+                var v = _vertices[i];
+                Vector3 dir = v - _center;
+                dir.Normalize();
+                v.x += dir.x * delta;
+                v.y += dir.y * delta;
+                v.z += dir.z * delta;
+            }
+            UpdateBounds();
+        }
+
+        public void Expand(double delta,Func<Vector3,Vector3> filter)
+        {
+            for (int i = 0; i < VertexCount; i++)
+            {
+                var v = _vertices[i];
+                Vector3 dir = v - _center;
+                dir.Normalize();
+                dir = filter(dir);
+                v.x += dir.x * delta;
+                v.y += dir.y * delta;
+                v.z += dir.z * delta;
+            }
+            UpdateBounds();
+        }
 
         private void UpdateBounds()
         {
+            _center.x = _center.y = _center.z = 0;
             for (int i = 0; i < ConvexFacesCount; i++)
             {
                 var face = ConvexFaces[i];
+                double coreX = 0, coreY = 0, coreZ = 0;
                 for (int j = 0; j < 3; j++)
                 {
                     var v = face.GetVert(j);
@@ -268,8 +303,17 @@ namespace Yx
                     _boundsMax.x = Math.Max(_boundsMax.x, v.x);
                     _boundsMax.y = Math.Max(_boundsMax.y, v.y);
                     _boundsMax.z = Math.Max(_boundsMax.z, v.z);
+
+                    coreX += v.x; coreY += v.y; coreZ += coreZ;
                 }
+                _center.x += coreX / 3;
+                _center.y += coreY / 3;
+                _center.z += coreZ / 3;
             }
+
+            _center.x /= ConvexFacesCount;
+            _center.y /= ConvexFacesCount;
+            _center.z /= ConvexFacesCount;
         }
     }
 }
