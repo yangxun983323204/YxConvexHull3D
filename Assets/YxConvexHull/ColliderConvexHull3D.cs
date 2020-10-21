@@ -13,6 +13,9 @@ namespace Yx
             var subVs = new List<List<Vertex>>(colliders.Length);
             foreach (var collider in colliders)
             {
+                if (collider.isTrigger)
+                    continue;
+
                 var child = collider.transform;
                 var matrix = GetLocalMatrix(child);
                 var vs = GetColliderVertices(collider);
